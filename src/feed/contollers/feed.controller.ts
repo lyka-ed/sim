@@ -1,8 +1,16 @@
-import { Controller, Body, Post, Get, Put, Param } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Post,
+  Get,
+  Put,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { FeedService } from '../services/feed.service';
 import { FeedPost } from '../models/post.interface';
-import { UpdateResult } from 'typeorm';
+import { UpdateResult, DeleteResult } from 'typeorm';
 
 @Controller('feed')
 export class FeedController {
@@ -24,5 +32,10 @@ export class FeedController {
     @Body() feedPost: FeedPost,
   ): Observable<UpdateResult> {
     return this.feedService.updatePost(id, feedPost);
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: number): Observable<DeleteResult> {
+    return this.feedService.deletePost(id);
   }
 }
