@@ -25,6 +25,12 @@ export class FeedService {
   }
 
   deletePost(id: number): Observable<DeleteResult> {
-    return from(this.feedPostRepository.delete(id));
+    const res = from(this.feedPostRepository.delete(id));
+    console.log(res);
+    return res;
+  }
+
+  findByIdPost(id: number): Observable<FeedPost | undefined> {
+    return from(this.feedPostRepository.findOne({ where: { id } })); // Pass an object with the 'id' property
   }
 }
