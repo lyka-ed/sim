@@ -4,7 +4,6 @@ import { FeedPostEntity } from '../models/post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FeedPost } from '../models/post.interface';
 import { Observable, from, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { CreateFeedDto } from 'src/dto/create-feed.dto';
 import { UpdateFeedDto } from 'src/dto/update-feed.dto';
 
@@ -44,9 +43,9 @@ export class FeedService {
   async findByIdPost(id: number): Promise<Observable<FeedPost | undefined>> {
     try {
       const post = await this.feedPostRepository.findOne({ where: { id } });
-      return Promise.resolve(of(post)); // Wrap the Observable in a Promise
+      return Promise.resolve(of(post));
     } catch (error) {
-      return Promise.resolve(of(undefined)); // Catch errors and return Promise of undefined Observable
+      return Promise.resolve(of(undefined));
     }
   }
 }

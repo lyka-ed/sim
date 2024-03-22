@@ -9,6 +9,9 @@ import {
   HttpCode,
   ParseIntPipe,
   ValidationPipe,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { FeedService } from '../services/feed.service';
@@ -16,11 +19,10 @@ import { FeedPost } from '../models/post.interface';
 import { UpdateResult } from 'typeorm';
 import { CreateFeedDto } from 'src/dto/create-feed.dto';
 import { UpdateFeedDto } from 'src/dto/update-feed.dto';
-// import { validate } from 'class-validator';
 
 @Controller('feed')
 export class FeedController {
-  constructor(private feedService: FeedService) {}
+  constructor(private readonly feedService: FeedService) {}
 
   @Post()
   create(
@@ -50,9 +52,26 @@ export class FeedController {
   }
 
   @Get(':id')
-  findOne(
+  async findOne(
     @Param('id', ParseIntPipe) id: number,
-  ): Observable<FeedPost | undefined> {
-    return this.feedService.findByIdPost(id);
+  ): Promise<Observable<FeedPost>> {
+    try {
+      const observable = await this.feedService.findByIdPost(id);
+      const post = await observable.toPromise();
+      if (!post) {
+        throw new NotFoundException('Post not found');
+      }
+      return observable;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      } else {
+        console.error('Error fetching post:', error);
+        throw new HttpException(
+          'Internal server error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
   }
 }
